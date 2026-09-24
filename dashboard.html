@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>แดชบอร์ดทีม IT</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', 'Sarabun', Tahoma, sans-serif;
+      background: #f4f6fa; margin: 0; padding: 20px;
+    }
+    h1 { color: #1a237e; font-size: 21px; margin: 0 0 4px; }
+    p.sub { color: #667; font-size: 13px; margin: 0 0 18px; }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin-bottom: 16px;
+    }
+    .toolbar select, .toolbar input {
+      padding: 8px 10px; border: 1px solid #d7dce3; border-radius: 8px;
+      font-size: 13px; background: #fff;
+    }
+    .toolbar button {
+      padding: 8px 14px; border: none; border-radius: 8px; background: #1a73e8;
+      color: #fff; font-size: 13px; cursor: pointer; font-weight: 600;
+    }
+    .toolbar button:hover { background: #1558b0; }
+    .counts { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+    .chip { font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #e8eaf6; color: #333; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    thead th {
+      background: #1a237e; color: #fff; text-align: left; padding: 10px 12px; font-size: 12px; white-space: nowrap;
+    }
+    tbody td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #eef0f4; vertical-align: top; }
+    tbody tr:hover { background: #f7f9fd; cursor: pointer; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .st-เปิด { background: #fce8e6; color: #b3261e; }
+    .st-รับเรื่อง { background: #fef7e0; color: #916b00; }
+    .st-กำลังดำเนินการ { background: #e8f0fe; color: #1a73e8; }
+    .st-ปิดงาน { background: #e6f4ea; color: #1e7e34; }
+    .ur-ต่ำ { color: #1e7e34; }
+    .ur-ปานกลาง { color: #916b00; }
+    .ur-สูง { color: #b3261e; }
+    .ur-ด่วนมาก { color: #ea4335; font-weight: 700; }
+
+    .empty { text-align: center; padding: 40px; color: #8a94a6; font-size: 13px; }
+    .banner {
+      background: #fff8e1; border: 1px solid #fbbc04; color: #7a5c00; font-size: 12px;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; display: none;
+    }
+
+    .overlay {
+      display: none; position: fixed; inset: 0; background: rgba(20,25,40,0.45);
+      align-items: center; justify-content: center; padding: 16px; z-index: 10;
+    }
+    .overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 14px; padding: 24px; max-width: 440px; width: 100%; }
+    .modal h2 { font-size: 17px; margin: 0 0 2px; color: #1a237e; }
+    .modal .tid { font-size: 12px; color: #8a94a6; margin-bottom: 16px; }
+    .modal p.field { font-size: 13px; margin: 6px 0; color: #333; }
+    .modal p.field b { color: #555; }
+    .modal label { display: block; font-size: 12px; font-weight: 600; margin: 14px 0 5px; color: #333; }
+    .modal select, .modal textarea {
+      width: 100%; padding: 9px 10px; border: 1px solid #d7dce3; border-radius: 8px; font-size: 13px; font-family: inherit;
+    }
+    .modal textarea { min-height: 70px; resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-save { background: #1a73e8; color: #fff; }
+    .btn-save:hover { background: #1558b0; }
+    .btn-cancel { background: #eceff4; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>📋 แดชบอร์ดทีม IT</h1>
+  <p class="sub">จัดการ Ticket แจ้งปัญหาคอมพิวเตอร์และ IT</p>
+  <div class="banner" id="apiBanner">⚠️ ยังไม่ได้ตั้งค่า API_URL ในไฟล์นี้ — แก้ตัวแปร API_URL ในโค้ดก่อนใช้งานจริง</div>
+
+  <div class="toolbar">
+    <select id="filterStatus">
+      <option value="">สถานะทั้งหมด</option>
+      <option value="เปิด">เปิด</option>
+      <option value="รับเรื่อง">รับเรื่อง</option>
+      <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+      <option value="ปิดงาน">ปิดงาน</option>
+    </select>
+    <input type="text" id="searchBox" placeholder="ค้นหาชื่อ / แผนก / ปัญหา...">
+    <button id="refreshBtn">🔄 รีเฟรช</button>
+    <div class="counts" id="counts"></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Ticket ID</th><th>วันที่แจ้ง</th><th>ผู้แจ้ง</th><th>แผนก</th>
+        <th>ปัญหา</th><th>ความเร่งด่วน</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div id="emptyState" class="empty" style="display:none;">ไม่พบ Ticket ในเงื่อนไขนี้</div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2 id="mName"></h2>
+      <div class="tid" id="mId"></div>
+      <p class="field"><b>แผนก:</b> <span id="mDept"></span></p>
+      <p class="field"><b>ปัญหา:</b> <span id="mProblem"></span></p>
+      <p class="field"><b>ความเร่งด่วน:</b> <span id="mUrgency"></span></p>
+      <p class="field"><b>แจ้งเมื่อ:</b> <span id="mTimestamp"></span></p>
+
+      <label>สถานะ</label>
+      <select id="mStatus">
+        <option value="เปิด">เปิด</option>
+        <option value="รับเรื่อง">รับเรื่อง</option>
+        <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+        <option value="ปิดงาน">ปิดงาน</option>
+      </select>
+
+      <label>ผู้รับผิดชอบ</label>
+      <select id="mAssigned"></select>
+
+      <label>หมายเหตุ</label>
+      <textarea id="mNotes" placeholder="บันทึกการแก้ไข / สาเหตุ / อื่นๆ"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelBtn">ปิด</button>
+        <button class="btn-save" id="saveBtn">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==== แก้ตรงนี้: ใส่ URL เดียวกับใน index.html ====
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwsxXCZRi6-E_2wIWcqYKP8y2eaqttf-WCUKflhJ5hIVVtrl-5HVgDHU6Sv_oZjEU9m/exec';
+
+    if (API_URL.indexOf('YOUR_DEPLOYMENT_ID') !== -1) {
+      document.getElementById('apiBanner').style.display = 'block';
+    }
+
+    let allTickets = [];
+    let staffList = [];
+    let activeId = null;
+
+    function apiGet(action) {
+      return fetch(API_URL + '?action=' + encodeURIComponent(action)).then(function (r) { return r.json(); });
+    }
+
+    function apiPost(action, data) {
+      return fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: action, data: data })
+      }).then(function (r) { return r.json(); });
+    }
+
+    function loadStaff() {
+      apiGet('getStaff').then(function (res) {
+        staffList = (res && res.success) ? res.data : [];
+        const sel = document.getElementById('mAssigned');
+        sel.innerHTML = '<option value="">-- ยังไม่มอบหมาย --</option>' +
+          staffList.map(function (s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
+      });
+    }
+
+    function loadTickets() {
+      document.getElementById('tbody').innerHTML = '<tr><td colspan="8" class="empty">กำลังโหลด...</td></tr>';
+      apiGet('getTickets').then(function (res) {
+        if (!res || !res.success) throw new Error(res && res.error ? res.error : 'โหลดข้อมูลล้มเหลว');
+        allTickets = res.data || [];
+        render();
+      }).catch(function (err) {
+        document.getElementById('tbody').innerHTML = '';
+        const empty = document.getElementById('emptyState');
+        empty.style.display = 'block';
+        empty.textContent = 'โหลดข้อมูลล้มเหลว: ' + err.message;
+      });
+    }
+
+    function render() {
+      const statusFilter = document.getElementById('filterStatus').value;
+      const q = document.getElementById('searchBox').value.trim().toLowerCase();
+
+      let filtered = allTickets.filter(function (t) {
+        if (statusFilter && t.status !== statusFilter) return false;
+        if (q && !(t.name.toLowerCase().includes(q) || t.department.toLowerCase().includes(q) || t.problem.toLowerCase().includes(q))) return false;
+        return true;
+      });
+
+      const counts = { 'เปิด': 0, 'รับเรื่อง': 0, 'กำลังดำเนินการ': 0, 'ปิดงาน': 0 };
+      allTickets.forEach(function (t) { if (counts[t.status] !== undefined) counts[t.status]++; });
+      document.getElementById('counts').innerHTML = Object.keys(counts)
+        .map(function (k) { return '<span class="chip">' + k + ': ' + counts[k] + '</span>'; }).join('');
+
+      const tbody = document.getElementById('tbody');
+      const empty = document.getElementById('emptyState');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        empty.textContent = 'ไม่พบ Ticket ในเงื่อนไขนี้';
+        return;
+      }
+      empty.style.display = 'none';
+
+      tbody.innerHTML = filtered.map(function (t) {
+        return '<tr onclick="openModal(\'' + t.id + '\')">' +
+          '<td>' + t.id + '</td>' +
+          '<td>' + t.timestamp + '</td>' +
+          '<td>' + escapeHtml(t.name) + '</td>' +
+          '<td>' + escapeHtml(t.department) + '</td>' +
+          '<td>' + escapeHtml(truncate(t.problem, 40)) + '</td>' +
+          '<td class="ur-' + t.urgency + '">' + t.urgency + '</td>' +
+          '<td><span class="badge st-' + t.status + '">' + t.status + '</span></td>' +
+          '<td>' + (t.assignedTo || '-') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s; }
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function openModal(id) {
+      const t = allTickets.find(function (x) { return x.id === id; });
+      if (!t) return;
+      activeId = id;
+      document.getElementById('mName').textContent = t.name;
+      document.getElementById('mId').textContent = t.id + '  •  แจ้งโดยแผนก ' + t.department;
+      document.getElementById('mDept').textContent = t.department;
+      document.getElementById('mProblem').textContent = t.problem;
+      document.getElementById('mUrgency').textContent = t.urgency;
+      document.getElementById('mTimestamp').textContent = t.timestamp;
+      document.getElementById('mStatus').value = t.status;
+      document.getElementById('mAssigned').value = t.assignedTo || '';
+      document.getElementById('mNotes').value = t.notes || '';
+      document.getElementById('overlay').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('overlay').classList.remove('show');
+      activeId = null;
+    }
+
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      if (!activeId) return;
+      const btn = this;
+      btn.disabled = true;
+      btn.textContent = 'กำลังบันทึก...';
+
+      apiPost('updateTicket', {
+        id: activeId,
+        status: document.getElementById('mStatus').value,
+        assignedTo: document.getElementById('mAssigned').value,
+        notes: document.getElementById('mNotes').value
+      }).then(function (res) {
+        btn.disabled = false;
+        btn.textContent = 'บันทึก';
+        if (res && res.success) {
+          closeModal();
+          loadTickets();
+        } else {
+          alert('เกิดข้อผิดพลาด: ' + (res && res.error ? res.error : ''));
+        }
+      }).catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = 'บันทึก';
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      });
+    });
+
+    document.getElementById('filterStatus').addEventListener('change', render);
+    document.getElementById('searchBox').addEventListener('input', render);
+    document.getElementById('refreshBtn').addEventListener('click', loadTickets);
+
+    loadStaff();
+    loadTickets();
+  </script>
+</body>
+</html>
