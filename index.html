@@ -1,142 +1,862 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>แจ้งปัญหาคอมพิวเตอร์ / IT</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', 'Sarabun', Tahoma, sans-serif;
-      background: linear-gradient(135deg, #eef2ff 0%, #f7f9fc 100%);
-      margin: 0; padding: 24px 16px; min-height: 100vh;
-      display: flex; justify-content: center;
-    }
-    .card {
-      background: #fff; max-width: 480px; width: 100%;
-      border-radius: 16px; padding: 28px 24px;
-      box-shadow: 0 10px 30px rgba(26,115,232,0.12);
-    }
-    h1 { font-size: 20px; color: #1a237e; margin: 0 0 4px; }
-    p.sub { color: #667; font-size: 13px; margin: 0 0 22px; }
-    label { display: block; font-size: 13px; font-weight: 600; color: #333; margin: 16px 0 6px; }
-    input, select, textarea {
-      width: 100%; padding: 11px 12px; border: 1px solid #d7dce3;
-      border-radius: 8px; font-size: 14px; font-family: inherit; background: #fafbfc;
-    }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: #1a73e8; background: #fff; }
-    textarea { resize: vertical; min-height: 90px; }
-    .urgency-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
-    .urgency-group input { display: none; }
-    .urgency-group label.opt {
-      text-align: center; padding: 9px 4px; border-radius: 8px; font-size: 12px;
-      border: 1px solid #d7dce3; cursor: pointer; margin: 0; color: #555; user-select: none;
-    }
-    .urgency-group input:checked + label.opt.low { background: #e6f4ea; border-color: #34a853; color: #1e7e34; }
-    .urgency-group input:checked + label.opt.med { background: #fef7e0; border-color: #fbbc04; color: #916b00; }
-    .urgency-group input:checked + label.opt.high { background: #fce8e6; border-color: #ea4335; color: #b3261e; }
-    .urgency-group input:checked + label.opt.urgent { background: #ea4335; border-color: #ea4335; color: #fff; font-weight: 700; }
-    button {
-      width: 100%; margin-top: 24px; padding: 13px; border: none; border-radius: 10px;
-      background: #1a73e8; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
-      transition: background .15s;
-    }
-    button:hover { background: #1558b0; }
-    button:disabled { background: #a9bde0; cursor: not-allowed; }
-    .msg { margin-top: 16px; padding: 12px 14px; border-radius: 8px; font-size: 13px; display: none; }
-    .msg.ok { background: #e6f4ea; color: #1e7e34; display: block; }
-    .msg.err { background: #fce8e6; color: #b3261e; display: block; }
-    .footer-link { text-align: center; margin-top: 18px; }
-    .footer-link a { font-size: 12px; color: #8a94a6; text-decoration: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ระบบแจ้งปัญหาคอมพิวเตอร์และ IT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.5/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --blue:#1a73e8; --indigo:#1a237e; --purple:#6a3de8; --violet:#8e5cf7;
+  --bg:#f3f5fb; --card:#ffffff; --text:#1f2430; --muted:#6b7280; --border:#e4e8f0;
+  --green:#1e9e5a; --yellow:#c99a06; --orange:#d9711b; --red:#e0392b;
+  --radius:16px; --shadow:0 8px 24px rgba(30,40,90,.08);
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Kanit','Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
+a{text-decoration:none;color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* ===== Header ===== */
+header.app-header{
+  background:linear-gradient(120deg,var(--indigo),var(--blue) 55%,var(--purple));
+  color:#fff; padding:16px 20px; display:flex; align-items:center; gap:14px;
+  box-shadow:var(--shadow); position:sticky; top:0; z-index:50;
+}
+header.app-header .icon-badge{
+  width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+header.app-header .titles h1{font-size:16px;margin:0;font-weight:600;}
+header.app-header .titles p{font-size:11px;margin:2px 0 0;opacity:.85;}
+header.app-header .status{
+  margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px;
+  background:rgba(255,255,255,.15); padding:6px 12px; border-radius:999px; white-space:nowrap;
+}
+header.app-header .status .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.3);}
+
+/* ===== Nav ===== */
+nav.app-nav{
+  display:flex; overflow-x:auto; background:#fff; border-bottom:1px solid var(--border);
+  position:sticky; top:78px; z-index:40; -webkit-overflow-scrolling:touch;
+}
+nav.app-nav a{
+  padding:12px 16px; font-size:13px; white-space:nowrap; color:var(--muted); font-weight:500;
+  border-bottom:3px solid transparent; display:flex; align-items:center; gap:6px;
+}
+nav.app-nav a.active{color:var(--blue); border-color:var(--blue);}
+
+main{max-width:1200px;margin:0 auto;padding:18px 14px 60px;}
+.view{display:none;}
+.view.active{display:block; animation:fadein .2s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+h2.view-title{font-size:19px;margin:4px 0 16px;color:var(--indigo);display:flex;align-items:center;gap:8px;}
+
+/* ===== Cards ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{
+  background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
+  border-left:4px solid var(--blue); position:relative; overflow:hidden;
+}
+.stat-card .num{font-size:26px;font-weight:700;color:var(--indigo);}
+.stat-card .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+.stat-card i{position:absolute;right:12px;top:12px;font-size:22px;opacity:.18;}
+.stat-card.c-pending{border-color:var(--yellow);}
+.stat-card.c-progress{border-color:var(--purple);}
+.stat-card.c-resolved{border-color:var(--green);}
+.stat-card.c-closed{border-color:#555;}
+.stat-card.c-urgent{border-color:var(--red);}
+
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:20px;}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);}
+.chart-card h3{font-size:14px;margin:0 0 10px;color:var(--indigo);}
+.chart-card canvas{max-height:240px;}
+
+/* ===== Form ===== */
+.form-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);max-width:640px;margin:0 auto;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid .full{grid-column:1/-1;}
+label{display:block;font-size:12.5px;font-weight:600;color:#333;margin:12px 0 5px;}
+input[type=text],input[type=tel],input[type=file],select,textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:13.5px;background:#fafbfe;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);background:#fff;}
+textarea{min-height:90px;resize:vertical;}
+.priority-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;}
+.priority-grid input{display:none;}
+.priority-grid label{
+  margin:0;text-align:center;padding:10px 4px;border-radius:10px;font-size:12px;border:1px solid var(--border);
+  background:#fafbfe;color:#555;
+}
+.priority-grid input:checked + label.p-low{background:#e6f7ec;border-color:var(--green);color:var(--green);}
+.priority-grid input:checked + label.p-med{background:#fff8e0;border-color:var(--yellow);color:#8a6a00;}
+.priority-grid input:checked + label.p-high{background:#fdece5;border-color:var(--orange);color:var(--orange);}
+.priority-grid input:checked + label.p-urgent{background:var(--red);border-color:var(--red);color:#fff;font-weight:700;}
+.btn{
+  border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:600;color:#fff;
+  background:linear-gradient(120deg,var(--blue),var(--purple)); transition:filter .15s;
+}
+.btn:hover{filter:brightness(1.08);}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.btn.block{width:100%;margin-top:18px;}
+.btn.secondary{background:#eef1f8;color:#333;}
+.btn.small{padding:7px 12px;font-size:12.5px;}
+.btn.danger{background:linear-gradient(120deg,#e0392b,#c62828);}
+.btn.success{background:linear-gradient(120deg,#1e9e5a,#0d7a41);}
+
+/* ===== Toolbar / table ===== */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center;}
+.toolbar select,.toolbar input{padding:8px 10px;border:1px solid var(--border);border-radius:9px;font-size:12.5px;background:#fff;}
+.chip{font-size:11px;background:#eef1f8;color:#333;padding:4px 10px;border-radius:999px;}
+.table-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:auto;}
+table{width:100%;border-collapse:collapse;min-width:780px;}
+thead th{background:var(--indigo);color:#fff;padding:10px 12px;font-size:11.5px;text-align:left;white-space:nowrap;}
+tbody td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody tr:hover{background:#f5f7fd;cursor:pointer;}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:600;}
+.st-รอรับเรื่อง{background:#fff3d6;color:#8a6a00;}
+.st-รับเรื่องแล้ว{background:#dbe9ff;color:#1a5fd9;}
+.st-กำลังดำเนินการ{background:#ece2fd;color:#6a3de8;}
+.st-รออะไหล่ / รอข้อมูล{background:#ffe4cc;color:#c05a00;}
+.st-แก้ไขแล้ว{background:#dbf5e4;color:#0d7a41;}
+.st-ปิดงาน{background:#e6e6e6;color:#444;}
+.st-ยกเลิก{background:#fbdada;color:#b3261e;}
+.pr-ปกติ{color:var(--green);}
+.pr-ปานกลาง{color:#8a6a00;}
+.pr-เร่งด่วน{color:var(--orange);font-weight:600;}
+.pr-ด่วนมาก{color:var(--red);font-weight:700;}
+.pagination{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap;}
+.pagination button{padding:6px 12px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:12.5px;}
+.pagination button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+
+/* ===== Modal ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,20,40,.5);align-items:flex-start;justify-content:center;padding:24px 14px;z-index:100;overflow-y:auto;}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-radius:18px;padding:22px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.modal h3{margin:0 0 2px;color:var(--indigo);font-size:16px;}
+.modal .sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.modal .field-row{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;margin-bottom:10px;}
+.modal .field-row b{color:#555;}
+.modal .section-tab{display:flex;gap:6px;margin:16px 0 10px;flex-wrap:wrap;}
+.modal .section-tab button{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:#fafbfe;font-size:12px;}
+.modal .section-tab button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.modal .pane{display:none;}
+.modal .pane.active{display:block;}
+.worklog-item{border-bottom:1px dashed var(--border);padding:8px 0;font-size:12px;}
+.worklog-item .meta{color:var(--muted);font-size:11px;}
+.close-x{position:absolute;top:16px;right:18px;font-size:20px;color:#999;cursor:pointer;}
+.modal{position:relative;}
+
+/* ===== Timeline ===== */
+.timeline{list-style:none;padding:0;margin:16px 0;}
+.timeline li{position:relative;padding:0 0 20px 30px;border-left:2px solid var(--border);}
+.timeline li:last-child{border-color:transparent;}
+.timeline li::before{content:'';position:absolute;left:-7px;top:0;width:12px;height:12px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 3px #fff;}
+.timeline .time{font-size:11px;color:var(--muted);}
+.timeline .label{font-size:13.5px;font-weight:600;color:#333;}
+
+.star-row{display:flex;gap:6px;font-size:26px;color:#ddd;cursor:pointer;margin:10px 0;}
+.star-row i.active{color:#f5b301;}
+
+.login-box{max-width:380px;margin:0 auto;background:var(--card);padding:24px;border-radius:var(--radius);box-shadow:var(--shadow);text-align:center;}
+.login-box .avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(120deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;margin:0 auto 12px;}
+
+@media(max-width:640px){
+  .form-grid{grid-template-columns:1fr;}
+  header.app-header .titles p{display:none;}
+}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>🖥️ แจ้งปัญหาคอมพิวเตอร์ / IT</h1>
-    <p class="sub">กรอกแบบฟอร์มด้านล่าง ทีม IT จะดำเนินการตรวจสอบ Ticket ที่เข้ามา</p>
 
-    <form id="ticketForm">
-      <label for="name">ชื่อ-นามสกุลผู้แจ้ง</label>
-      <input type="text" id="name" required placeholder="เช่น สมชาย ใจดี">
-
-      <label for="department">แผนก / หน่วยงาน</label>
-      <input type="text" id="department" required placeholder="เช่น ฝ่ายบัญชี">
-
-      <label for="problem">รายละเอียดปัญหา</label>
-      <textarea id="problem" required placeholder="อธิบายอาการหรือปัญหาที่พบ"></textarea>
-
-      <label>ความเร่งด่วน</label>
-      <div class="urgency-group">
-        <input type="radio" name="urgency" id="u1" value="ต่ำ">
-        <label class="opt low" for="u1">ต่ำ</label>
-
-        <input type="radio" name="urgency" id="u2" value="ปานกลาง" checked>
-        <label class="opt med" for="u2">ปานกลาง</label>
-
-        <input type="radio" name="urgency" id="u3" value="สูง">
-        <label class="opt high" for="u3">สูง</label>
-
-        <input type="radio" name="urgency" id="u4" value="ด่วนมาก">
-        <label class="opt urgent" for="u4">ด่วนมาก</label>
-      </div>
-
-      <button type="submit" id="submitBtn">ส่งแจ้งปัญหา</button>
-      <div id="resultMsg" class="msg"></div>
-    </form>
-
-    <div class="footer-link"><a href="dashboard.html">เข้าสู่แดชบอร์ดทีม IT →</a></div>
+<header class="app-header">
+  <div class="icon-badge"><i class="fa-solid fa-computer"></i></div>
+  <div class="titles">
+    <h1>ระบบแจ้งปัญหาคอมพิวเตอร์และ IT</h1>
+    <p>IT Helpdesk &amp; Computer Problem Reporting System</p>
   </div>
+  <div class="status"><span class="dot"></span> Online</div>
+</header>
 
-  <script>
-    // ==== แก้ตรงนี้: ใส่ URL ของ Apps Script Web App (ลงท้ายด้วย /exec) ====
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwsxXCZRi6-E_2wIWcqYKP8y2eaqttf-WCUKflhJ5hIVVtrl-5HVgDHU6Sv_oZjEU9m/exec';
+<nav class="app-nav" id="navBar">
+  <a href="#dashboard" data-v="dashboard"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+  <a href="#report" data-v="report"><i class="fa-solid fa-pen-to-square"></i> แจ้งปัญหา</a>
+  <a href="#mytickets" data-v="mytickets"><i class="fa-solid fa-ticket"></i> Ticket ของฉัน</a>
+  <a href="#track" data-v="track"><i class="fa-solid fa-magnifying-glass-location"></i> ติดตาม Ticket</a>
+  <a href="#itstaff" data-v="itstaff"><i class="fa-solid fa-screwdriver-wrench"></i> งาน IT</a>
+  <a href="#reports" data-v="reports"><i class="fa-solid fa-chart-column"></i> รายงาน</a>
+  <a href="#settings" data-v="settings"><i class="fa-solid fa-gear"></i> ตั้งค่า</a>
+</nav>
 
-    const form = document.getElementById('ticketForm');
-    const btn = document.getElementById('submitBtn');
-    const msg = document.getElementById('resultMsg');
+<main>
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      const urgencyEl = form.querySelector('input[name="urgency"]:checked');
-      const data = {
-        name: document.getElementById('name').value.trim(),
-        department: document.getElementById('department').value.trim(),
-        problem: document.getElementById('problem').value.trim(),
-        urgency: urgencyEl ? urgencyEl.value : 'ปานกลาง'
-      };
+  <!-- ============ DASHBOARD ============ -->
+  <section class="view" id="view-dashboard">
+    <h2 class="view-title"><i class="fa-solid fa-gauge"></i> ภาพรวมระบบ</h2>
+    <div class="stat-grid" id="dashCards"></div>
+    <div class="chart-grid">
+      <div class="chart-card"><h3>ปัญหาแยกตามประเภท</h3><canvas id="chartType"></canvas></div>
+      <div class="chart-card"><h3>ปัญหาแยกตามอาคาร</h3><canvas id="chartBuilding"></canvas></div>
+      <div class="chart-card"><h3>เจ้าหน้าที่ที่รับงานมากที่สุด</h3><canvas id="chartStaff"></canvas></div>
+      <div class="chart-card">
+        <h3>ปัญหาที่เกิดซ้ำบ่อย (Top 5)</h3>
+        <div id="topProblemsList"></div>
+      </div>
+    </div>
+  </section>
 
-      btn.disabled = true;
-      btn.textContent = 'กำลังส่ง...';
-      msg.className = 'msg';
-      msg.textContent = '';
+  <!-- ============ REPORT FORM ============ -->
+  <section class="view" id="view-report">
+    <h2 class="view-title"><i class="fa-solid fa-pen-to-square"></i> แจ้งปัญหา IT</h2>
+    <form class="form-card" id="reportForm">
+      <div class="form-grid">
+        <div><label>ชื่อ-นามสกุล *</label><input type="text" id="rName" required></div>
+        <div><label>ฝ่าย / แผนก *</label><input type="text" id="rDept" required></div>
+        <div><label>เบอร์โทรศัพท์ *</label><input type="tel" id="rPhone" required></div>
+        <div><label>อาคาร *</label><input type="text" id="rBuilding" required></div>
+        <div><label>ชั้น</label><input type="text" id="rFloor"></div>
+        <div><label>เลขครุภัณฑ์ (ถ้ามี)</label><input type="text" id="rAsset"></div>
+        <div class="full"><label>ประเภทปัญหา *</label>
+          <select id="rType" required>
+            <option value="">-- เลือกประเภท --</option>
+            <option>Computer</option><option>Notebook</option><option>Printer</option>
+            <option>Network / Internet</option><option>Wi-Fi</option><option>Projector</option>
+            <option>Software</option><option>Hardware</option><option>Email</option>
+            <option>Google Workspace</option><option>Account</option><option>อื่น ๆ</option>
+          </select>
+        </div>
+        <div class="full"><label>หัวข้อปัญหา *</label><input type="text" id="rTitle" required placeholder="สรุปปัญหาสั้นๆ"></div>
+        <div class="full"><label>รายละเอียดปัญหา *</label><textarea id="rDetail" required placeholder="อธิบายอาการที่พบ"></textarea></div>
+        <div class="full">
+          <label>ระดับความเร่งด่วน *</label>
+          <div class="priority-grid">
+            <input type="radio" name="priority" id="pLow" value="ปกติ" checked><label class="p-low" for="pLow">🟢 ปกติ</label>
+            <input type="radio" name="priority" id="pMed" value="ปานกลาง"><label class="p-med" for="pMed">🟡 ปานกลาง</label>
+            <input type="radio" name="priority" id="pHigh" value="เร่งด่วน"><label class="p-high" for="pHigh">🟠 เร่งด่วน</label>
+            <input type="radio" name="priority" id="pUrgent" value="ด่วนมาก"><label class="p-urgent" for="pUrgent">🔴 ด่วนมาก</label>
+          </div>
+        </div>
+        <div class="full"><label>แนบรูปภาพ / ไฟล์ (ถ้ามี)</label><input type="file" id="rFile" accept="image/*,.pdf"></div>
+      </div>
+      <button type="submit" class="btn block" id="reportSubmitBtn"><i class="fa-solid fa-paper-plane"></i> ส่งแจ้งปัญหา</button>
+    </form>
+  </section>
 
-      fetch(API_URL, {
-        method: 'POST',
-        // ใช้ text/plain เพื่อเลี่ยง CORS preflight (Apps Script ไม่รองรับ OPTIONS)
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'submitTicket', data: data })
-      })
-        .then(function (res) { return res.json(); })
-        .then(function (res) {
-          btn.disabled = false;
-          btn.textContent = 'ส่งแจ้งปัญหา';
-          if (res && res.success) {
-            msg.className = 'msg ok';
-            msg.textContent = '✅ แจ้งปัญหาสำเร็จ! หมายเลข Ticket: ' + res.ticketId;
-            form.reset();
-            document.getElementById('u2').checked = true;
-          } else {
-            msg.className = 'msg err';
-            msg.textContent = '❌ ' + (res && res.error ? res.error : 'เกิดข้อผิดพลาด กรุณาลองใหม่');
-          }
-        })
-        .catch(function (err) {
-          btn.disabled = false;
-          btn.textContent = 'ส่งแจ้งปัญหา';
-          msg.className = 'msg err';
-          msg.textContent = '❌ เชื่อมต่อ API ไม่ได้: ' + err.message;
-        });
+  <!-- ============ MY TICKETS ============ -->
+  <section class="view" id="view-mytickets">
+    <h2 class="view-title"><i class="fa-solid fa-ticket"></i> Ticket ของฉัน</h2>
+    <div class="toolbar">
+      <input type="text" id="myTicketsQuery" placeholder="กรอกชื่อ หรือ เบอร์โทรที่ใช้แจ้ง">
+      <button class="btn small" id="myTicketsSearchBtn"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ticket ID</th><th>วันที่แจ้ง</th><th>ปัญหา</th><th>ความเร่งด่วน</th><th>สถานะ</th></tr></thead>
+      <tbody id="myTicketsBody"></tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ TRACK ============ -->
+  <section class="view" id="view-track">
+    <h2 class="view-title"><i class="fa-solid fa-magnifying-glass-location"></i> ติดตามสถานะ Ticket</h2>
+    <div class="toolbar">
+      <input type="text" id="trackInput" placeholder="กรอก Ticket ID เช่น IT-20260909-0001">
+      <button class="btn small" id="trackBtn"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
+    </div>
+    <div id="trackResult"></div>
+  </section>
+
+  <!-- ============ IT STAFF ============ -->
+  <section class="view" id="view-itstaff">
+    <h2 class="view-title"><i class="fa-solid fa-screwdriver-wrench"></i> งาน IT</h2>
+    <div class="toolbar">
+      <select id="fStatus"><option value="">สถานะทั้งหมด</option></select>
+      <select id="fType"><option value="">ประเภททั้งหมด</option></select>
+      <select id="fPriority"><option value="">ความเร่งด่วนทั้งหมด</option></select>
+      <input type="text" id="fBuilding" placeholder="อาคาร">
+      <input type="date" id="fDateFrom">
+      <input type="date" id="fDateTo">
+      <input type="text" id="fSearch" placeholder="ค้นหา...">
+      <select id="fPageSize"><option value="10">10/หน้า</option><option value="20" selected>20/หน้า</option><option value="50">50/หน้า</option></select>
+      <button class="btn small" id="fApplyBtn"><i class="fa-solid fa-filter"></i> กรอง</button>
+      <button class="btn small secondary" id="fResetBtn">ล้าง</button>
+      <span class="chip" id="fCount"></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ticket ID</th><th>วันที่แจ้ง</th><th>ผู้แจ้ง</th><th>อาคาร</th><th>ประเภท</th><th>ความเร่งด่วน</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th></tr></thead>
+      <tbody id="staffBody"></tbody>
+    </table></div>
+    <div class="pagination" id="staffPagination"></div>
+  </section>
+
+  <!-- ============ REPORTS ============ -->
+  <section class="view" id="view-reports">
+    <h2 class="view-title"><i class="fa-solid fa-chart-column"></i> รายงาน</h2>
+    <div class="toolbar">
+      <select id="repRange">
+        <option value="today">วันนี้</option>
+        <option value="7d">7 วัน</option>
+        <option value="thisMonth" selected>เดือนนี้</option>
+        <option value="lastMonth">เดือนที่ผ่านมา</option>
+        <option value="custom">กำหนดช่วงวันที่เอง</option>
+      </select>
+      <input type="date" id="repFrom" style="display:none">
+      <input type="date" id="repTo" style="display:none">
+      <button class="btn small" id="repLoadBtn"><i class="fa-solid fa-rotate"></i> โหลดรายงาน</button>
+      <button class="btn small secondary" id="repExportBtn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+    </div>
+    <div class="stat-grid" id="repCards"></div>
+    <div class="chart-grid">
+      <div class="chart-card"><h3>ตามสถานะ</h3><canvas id="repChartStatus"></canvas></div>
+      <div class="chart-card"><h3>ตามประเภทปัญหา</h3><canvas id="repChartType"></canvas></div>
+      <div class="chart-card"><h3>ตามเจ้าหน้าที่</h3><canvas id="repChartStaff"></canvas></div>
+      <div class="chart-card"><h3>ปัญหาที่พบบ่อย</h3><div id="repTopProblems"></div></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS / LOGIN ============ -->
+  <section class="view" id="view-settings">
+    <h2 class="view-title"><i class="fa-solid fa-gear"></i> ตั้งค่า / บัญชีผู้ใช้</h2>
+    <div class="login-box" id="loginBox">
+      <div class="avatar"><i class="fa-solid fa-user"></i></div>
+      <div id="loginState"></div>
+      <div id="loginForm">
+        <label style="text-align:left">ชื่อ / เบอร์โทร / รหัสพนักงาน</label>
+        <input type="text" id="loginIdentifier" placeholder="สำหรับเจ้าหน้าที่ IT / Admin">
+        <button class="btn block" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ</button>
+      </div>
+      <button class="btn secondary block" id="logoutBtn" style="display:none">ออกจากระบบ</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ MODAL: Ticket Detail (IT Staff) ============ -->
+<div class="overlay" id="ticketModal">
+  <div class="modal">
+    <span class="close-x" id="modalCloseBtn">&times;</span>
+    <h3 id="mTitle"></h3>
+    <div class="sub" id="mSub"></div>
+    <div class="field-row">
+      <span><b>แผนก:</b> <span id="mDept"></span></span>
+      <span><b>โทร:</b> <span id="mPhone"></span></span>
+      <span><b>อาคาร/ชั้น:</b> <span id="mLoc"></span></span>
+      <span><b>ครุภัณฑ์:</b> <span id="mAsset"></span></span>
+    </div>
+    <div class="field-row"><span><b>รายละเอียด:</b></span></div>
+    <div style="font-size:13px;background:#f8f9fc;padding:10px;border-radius:8px;margin-bottom:8px" id="mDetail"></div>
+    <div id="mAttachWrap" style="margin-bottom:8px;"></div>
+
+    <div class="section-tab">
+      <button data-pane="assign" class="active">มอบหมาย</button>
+      <button data-pane="status">เปลี่ยนสถานะ</button>
+      <button data-pane="worklog">Work Log</button>
+      <button data-pane="close">ปิดงาน</button>
+    </div>
+
+    <div class="pane active" id="pane-assign">
+      <label>ผู้รับผิดชอบ</label>
+      <select id="assignStaffSelect"></select>
+      <button class="btn small" id="assignBtn" style="margin-top:10px;">มอบหมายงาน</button>
+    </div>
+
+    <div class="pane" id="pane-status">
+      <label>สถานะ</label>
+      <select id="statusSelect"></select>
+      <label>หมายเหตุ</label>
+      <textarea id="statusNote"></textarea>
+      <button class="btn small" id="statusBtn" style="margin-top:10px;">บันทึกสถานะ</button>
+    </div>
+
+    <div class="pane" id="pane-worklog">
+      <label>เจ้าหน้าที่</label><input type="text" id="wlStaff">
+      <label>การดำเนินการ</label><textarea id="wlAction" placeholder="เช่น ตรวจสอบเครื่อง พบปัญหา RAM..."></textarea>
+      <label>อุปกรณ์ที่เปลี่ยน</label><input type="text" id="wlParts">
+      <label>ค่าใช้จ่าย (บาท)</label><input type="text" id="wlCost" value="0">
+      <label>หมายเหตุ</label><textarea id="wlNote"></textarea>
+      <button class="btn small" id="wlBtn" style="margin-top:10px;">บันทึก Work Log</button>
+      <div style="margin-top:14px;" id="wlList"></div>
+    </div>
+
+    <div class="pane" id="pane-close">
+      <label>วิธีการแก้ไข *</label><textarea id="clResolution"></textarea>
+      <label>สาเหตุของปัญหา *</label><textarea id="clRootCause"></textarea>
+      <label>ค่าใช้จ่ายรวม (บาท)</label><input type="text" id="clCost" value="0">
+      <label>หมายเหตุ</label><textarea id="clNote"></textarea>
+      <button class="btn small success" id="closeBtn" style="margin-top:10px;">ยืนยันปิดงาน</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================
+   แก้ตรงนี้: ใส่ URL ของ Apps Script Web App (ลงท้ายด้วย /exec)
+   ========================================================== */
+const API_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+
+const STATUSES = ['รอรับเรื่อง','รับเรื่องแล้ว','กำลังดำเนินการ','รออะไหล่ / รอข้อมูล','แก้ไขแล้ว','ปิดงาน','ยกเลิก'];
+const PROBLEM_TYPES = ['Computer','Notebook','Printer','Network / Internet','Wi-Fi','Projector','Software','Hardware','Email','Google Workspace','Account','อื่น ๆ'];
+const PRIORITIES = ['ปกติ','ปานกลาง','เร่งด่วน','ด่วนมาก'];
+
+let session = JSON.parse(localStorage.getItem('ithd_session') || 'null');
+let staffPage = 1;
+let staffFilters = {};
+let charts = {};
+let activeModalTicketId = null;
+
+/* ---------- API HELPERS ---------- */
+function qs(obj){
+  return Object.keys(obj || {}).filter(k => obj[k] !== '' && obj[k] !== undefined && obj[k] !== null)
+    .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(obj[k])).join('&');
+}
+function apiGet(action, params){
+  return fetch(API_URL + '?action=' + action + '&' + qs(params || {}))
+    .then(r => r.json())
+    .catch(err => ({ success:false, error: 'เชื่อมต่อ API ไม่ได้: ' + err.message }));
+}
+function apiPost(action, data){
+  return fetch(API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify({ action, data })
+  }).then(r => r.json())
+    .catch(err => ({ success:false, error: 'เชื่อมต่อ API ไม่ได้: ' + err.message }));
+}
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(icon, title){ Swal.fire({toast:true, position:'top', icon, title, showConfirmButton:false, timer:2200}); }
+
+/* ---------- ROUTER ---------- */
+function router(){
+  const hash = (location.hash || '#dashboard').replace('#','').split('/')[0];
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#navBar a').forEach(a => a.classList.remove('active'));
+  const view = document.getElementById('view-' + hash) ? hash : 'dashboard';
+  document.getElementById('view-' + view).classList.add('active');
+  const navLink = document.querySelector('#navBar a[data-v="'+view+'"]');
+  if (navLink) navLink.classList.add('active');
+
+  if (view === 'dashboard') loadDashboard();
+  if (view === 'itstaff') loadStaffFilters();
+  if (view === 'reports') loadReport();
+  if (view === 'settings') renderLoginState();
+
+  const trackParam = (location.hash.split('/track/')[1]);
+  if (view === 'track' && trackParam) {
+    document.getElementById('trackInput').value = trackParam;
+    doTrack(trackParam);
+  }
+}
+window.addEventListener('hashchange', router);
+
+/* ==========================================================
+   1. DASHBOARD
+   ========================================================== */
+function loadDashboard(){
+  apiGet('getDashboardStats').then(res => {
+    if (!res.success) return toast('error', res.error);
+    const s = res.data;
+    document.getElementById('dashCards').innerHTML = `
+      <div class="stat-card"><i class="fa-solid fa-ticket"></i><div class="num">${s.total}</div><div class="lbl">แจ้งปัญหาทั้งหมด</div></div>
+      <div class="stat-card c-pending"><i class="fa-solid fa-hourglass-half"></i><div class="num">${s.pending}</div><div class="lbl">รอดำเนินการ</div></div>
+      <div class="stat-card c-progress"><i class="fa-solid fa-spinner"></i><div class="num">${s.inProgress}</div><div class="lbl">กำลังดำเนินการ</div></div>
+      <div class="stat-card c-resolved"><i class="fa-solid fa-check"></i><div class="num">${s.resolved}</div><div class="lbl">แก้ไขแล้ว</div></div>
+      <div class="stat-card c-closed"><i class="fa-solid fa-box-archive"></i><div class="num">${s.closed}</div><div class="lbl">ปิดงาน</div></div>
+      <div class="stat-card c-urgent"><i class="fa-solid fa-triangle-exclamation"></i><div class="num">${s.urgent}</div><div class="lbl">ปัญหาด่วน</div></div>
+      <div class="stat-card"><i class="fa-regular fa-calendar"></i><div class="num">${s.today}</div><div class="lbl">ปัญหาวันนี้</div></div>
+      <div class="stat-card"><i class="fa-solid fa-clock"></i><div class="num">${s.avgResolutionHours} ชม.</div><div class="lbl">เวลาแก้ไขเฉลี่ย</div></div>
+    `;
+    drawDoughnut('chartType', s.byType);
+    drawBar('chartBuilding', s.byBuilding);
+    drawBar('chartStaff', s.byStaff);
+    document.getElementById('topProblemsList').innerHTML = s.topProblemsList.length
+      ? s.topProblemsList.map(p => `<div class="worklog-item"><b>${escapeHtml(p.title)}</b> — ${p.count} ครั้ง</div>`).join('')
+      : '<div class="empty-state">ยังไม่มีข้อมูล</div>';
+  });
+}
+function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+function drawDoughnut(id, dataObj){
+  destroyChart(id);
+  const labels = Object.keys(dataObj);
+  const ctx = document.getElementById(id);
+  charts[id] = new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data: labels.map(l=>dataObj[l]),
+    backgroundColor:['#1a73e8','#6a3de8','#8e5cf7','#1e9e5a','#c99a06','#d9711b','#e0392b','#4dd0e1','#ba68c8','#90a4ae','#26a69a','#ef5350'] }]},
+    options:{ plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:10} } } } } });
+}
+function drawBar(id, dataObj){
+  destroyChart(id);
+  const labels = Object.keys(dataObj);
+  const ctx = document.getElementById(id);
+  charts[id] = new Chart(ctx, { type:'bar', data:{ labels, datasets:[{ data: labels.map(l=>dataObj[l]), backgroundColor:'#1a73e8', borderRadius:6 }] },
+    options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } } });
+}
+
+/* ==========================================================
+   2. REPORT FORM
+   ========================================================== */
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+document.getElementById('reportForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('reportSubmitBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่ง...';
+
+  const data = {
+    reporterName: document.getElementById('rName').value.trim(),
+    department: document.getElementById('rDept').value.trim(),
+    phone: document.getElementById('rPhone').value.trim(),
+    building: document.getElementById('rBuilding').value.trim(),
+    floor: document.getElementById('rFloor').value.trim(),
+    assetId: document.getElementById('rAsset').value.trim(),
+    problemType: document.getElementById('rType').value,
+    problemTitle: document.getElementById('rTitle').value.trim(),
+    problemDetail: document.getElementById('rDetail').value.trim(),
+    priority: document.querySelector('input[name=priority]:checked').value
+  };
+
+  const fileEl = document.getElementById('rFile');
+  if (fileEl.files.length) {
+    const f = fileEl.files[0];
+    const base64 = await fileToBase64(f);
+    data.attachment = { fileName: f.name, mimeType: f.type, base64 };
+  }
+
+  const res = await apiPost('submitTicket', data);
+  btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ส่งแจ้งปัญหา';
+
+  if (res.success) {
+    Swal.fire({
+      icon:'success', title:'แจ้งปัญหาสำเร็จ',
+      html:`<div style="font-size:14px">Ticket ID:</div><div style="font-size:22px;font-weight:700;color:#1a73e8;margin:6px 0">${res.ticketId}</div><div style="font-size:12.5px;color:#888">กรุณาเก็บ Ticket ID ไว้สำหรับติดตามสถานะ</div>`,
+      confirmButtonText:'ตกลง'
     });
-  </script>
+    document.getElementById('reportForm').reset();
+  } else {
+    Swal.fire('เกิดข้อผิดพลาด', res.error || 'ไม่สามารถส่งแจ้งปัญหาได้', 'error');
+  }
+});
+
+/* ==========================================================
+   3. MY TICKETS
+   ========================================================== */
+document.getElementById('myTicketsSearchBtn').addEventListener('click', () => {
+  const q = document.getElementById('myTicketsQuery').value.trim();
+  const tbody = document.getElementById('myTicketsBody');
+  if (!q) return toast('warning','กรอกชื่อหรือเบอร์โทรก่อน');
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-state">กำลังค้นหา...</td></tr>';
+  apiGet('getTickets', { search: q, pageSize: 100 }).then(res => {
+    if (!res.success) { tbody.innerHTML = ''; return toast('error', res.error); }
+    const items = res.data.items;
+    if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">ไม่พบ Ticket</td></tr>'; return; }
+    tbody.innerHTML = items.map(t => `
+      <tr onclick="location.hash='#track/${t.ticketId}'">
+        <td>${t.ticketId}</td><td>${t.createdAt}</td><td>${escapeHtml(t.problemTitle)}</td>
+        <td class="pr-${t.priority}">${t.priority}</td>
+        <td><span class="badge st-${t.status}">${t.status}</span></td>
+      </tr>`).join('');
+  });
+});
+
+/* ==========================================================
+   4. TRACK TICKET
+   ========================================================== */
+document.getElementById('trackBtn').addEventListener('click', () => doTrack(document.getElementById('trackInput').value.trim()));
+function doTrack(ticketId){
+  if (!ticketId) return;
+  const box = document.getElementById('trackResult');
+  box.innerHTML = '<div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลด...</div>';
+  apiGet('getTicketById', { ticketId }).then(res => {
+    if (!res.success) { box.innerHTML = `<div class="empty-state">${res.error}</div>`; return; }
+    const t = res.data;
+    let ratingHtml = '';
+    if ((t.status === 'ปิดงาน' || t.status === 'แก้ไขแล้ว')) {
+      ratingHtml = `
+        <div class="form-card" style="margin-top:16px;max-width:none;">
+          <label>ให้คะแนนความพึงพอใจ</label>
+          <div class="star-row" id="starRow">
+            ${[1,2,3,4,5].map(n=>`<i class="fa-solid fa-star" data-v="${n}"></i>`).join('')}
+          </div>
+          <textarea id="fbText" placeholder="ความคิดเห็นเพิ่มเติม (ถ้ามี)">${escapeHtml(t.feedback||'')}</textarea>
+          <button class="btn small" id="rateBtn" style="margin-top:8px;">ส่งคะแนน</button>
+        </div>`;
+    }
+    box.innerHTML = `
+      <div class="form-card" style="max-width:none;">
+        <div class="field-row">
+          <span><b>Ticket:</b> ${t.ticketId}</span>
+          <span><b>สถานะ:</b> <span class="badge st-${t.status}">${t.status}</span></span>
+          <span><b>ความเร่งด่วน:</b> <span class="pr-${t.priority}">${t.priority}</span></span>
+        </div>
+        <div class="field-row"><span><b>ปัญหา:</b> ${escapeHtml(t.problemTitle)}</span></div>
+        <div class="field-row"><span><b>ผู้รับผิดชอบ:</b> ${t.assignedTo || 'ยังไม่มอบหมาย'}</span></div>
+        <ul class="timeline">
+          ${t.timeline.map(s => `<li><div class="time">${s.time}</div><div class="label">${escapeHtml(s.label)}</div></li>`).join('')}
+        </ul>
+      </div>
+      ${ratingHtml}
+    `;
+    if (ratingHtml) {
+      let rating = t.rating || 0;
+      const stars = document.querySelectorAll('#starRow i');
+      function paint(){ stars.forEach(s => s.classList.toggle('active', Number(s.dataset.v) <= rating)); }
+      paint();
+      stars.forEach(s => s.addEventListener('click', () => { rating = Number(s.dataset.v); paint(); }));
+      document.getElementById('rateBtn').addEventListener('click', () => {
+        apiPost('rateTicket', { ticketId: t.ticketId, rating, feedback: document.getElementById('fbText').value }).then(r => {
+          if (r.success) toast('success','ขอบคุณสำหรับการให้คะแนน'); else toast('error', r.error);
+        });
+      });
+    }
+  });
+}
+
+/* ==========================================================
+   5. IT STAFF DASHBOARD
+   ========================================================== */
+function loadStaffFilters(){
+  const sSel = document.getElementById('fStatus');
+  if (sSel.options.length <= 1) STATUSES.forEach(s => sSel.insertAdjacentHTML('beforeend', `<option>${s}</option>`));
+  const tSel = document.getElementById('fType');
+  if (tSel.options.length <= 1) PROBLEM_TYPES.forEach(t => tSel.insertAdjacentHTML('beforeend', `<option>${t}</option>`));
+  const pSel = document.getElementById('fPriority');
+  if (pSel.options.length <= 1) PRIORITIES.forEach(p => pSel.insertAdjacentHTML('beforeend', `<option>${p}</option>`));
+  loadStaffTickets();
+}
+document.getElementById('fApplyBtn').addEventListener('click', () => { staffPage = 1; loadStaffTickets(); });
+document.getElementById('fResetBtn').addEventListener('click', () => {
+  ['fStatus','fType','fPriority','fBuilding','fDateFrom','fDateTo','fSearch'].forEach(id => document.getElementById(id).value='');
+  staffPage = 1; loadStaffTickets();
+});
+function loadStaffTickets(){
+  staffFilters = {
+    status: document.getElementById('fStatus').value,
+    problemType: document.getElementById('fType').value,
+    priority: document.getElementById('fPriority').value,
+    building: document.getElementById('fBuilding').value,
+    dateFrom: document.getElementById('fDateFrom').value,
+    dateTo: document.getElementById('fDateTo').value,
+    search: document.getElementById('fSearch').value,
+    page: staffPage,
+    pageSize: document.getElementById('fPageSize').value
+  };
+  const tbody = document.getElementById('staffBody');
+  tbody.innerHTML = '<tr><td colspan="8" class="empty-state">กำลังโหลด...</td></tr>';
+  apiGet('getTickets', staffFilters).then(res => {
+    if (!res.success) { tbody.innerHTML=''; return toast('error', res.error); }
+    const { items, total, page, pageSize } = res.data;
+    document.getElementById('fCount').textContent = 'ทั้งหมด ' + total + ' รายการ';
+    if (!items.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty-state">ไม่พบ Ticket</td></tr>'; renderPagination(0,1,pageSize); return; }
+    tbody.innerHTML = items.map(t => `
+      <tr onclick="openTicketModal('${t.ticketId}')">
+        <td>${t.ticketId}</td><td>${t.createdAt}</td><td>${escapeHtml(t.reporterName)}</td>
+        <td>${escapeHtml(t.building)}</td><td>${escapeHtml(t.problemType)}</td>
+        <td class="pr-${t.priority}">${t.priority}</td>
+        <td><span class="badge st-${t.status}">${t.status}</span></td>
+        <td>${t.assignedTo || '-'}</td>
+      </tr>`).join('');
+    renderPagination(total, page, pageSize);
+  });
+}
+function renderPagination(total, page, pageSize){
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const box = document.getElementById('staffPagination');
+  let html = '';
+  for (let i=1; i<=pages; i++){
+    if (pages > 9 && Math.abs(i-page) > 3 && i!==1 && i!==pages) { if (i===2||i===pages-1) html += `<span>...</span>`; continue; }
+    html += `<button class="${i===page?'active':''}" onclick="staffPage=${i};loadStaffTickets()">${i}</button>`;
+  }
+  box.innerHTML = html;
+}
+
+/* ---- Ticket Detail Modal ---- */
+function openTicketModal(ticketId){
+  activeModalTicketId = ticketId;
+  apiGet('getTicketById', { ticketId }).then(res => {
+    if (!res.success) return toast('error', res.error);
+    const t = res.data;
+    document.getElementById('mTitle').textContent = t.ticketId + ' — ' + t.problemTitle;
+    document.getElementById('mSub').innerHTML = `ผู้แจ้ง: ${escapeHtml(t.reporterName)} • แจ้งเมื่อ ${t.createdAt} • <span class="badge st-${t.status}">${t.status}</span>`;
+    document.getElementById('mDept').textContent = t.department;
+    document.getElementById('mPhone').textContent = t.phone;
+    document.getElementById('mLoc').textContent = t.building + (t.floor ? ' ชั้น '+t.floor : '');
+    document.getElementById('mAsset').textContent = t.assetId || '-';
+    document.getElementById('mDetail').textContent = t.problemDetail;
+    document.getElementById('mAttachWrap').innerHTML = t.attachmentUrl
+      ? `<a href="${t.attachmentUrl}" target="_blank" class="chip"><i class="fa-solid fa-paperclip"></i> เปิดไฟล์แนบ</a>` : '';
+
+    const statusSel = document.getElementById('statusSelect');
+    statusSel.innerHTML = STATUSES.map(s => `<option ${s===t.status?'selected':''}>${s}</option>`).join('');
+
+    renderWorkLogs(t.workLogs);
+    switchPane('assign');
+    document.getElementById('ticketModal').classList.add('show');
+  });
+  apiGet('getUsers', { role: 'IT Staff' }).then(res => {
+    const sel = document.getElementById('assignStaffSelect');
+    const staff = res.success ? res.data : [];
+    sel.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>' + staff.map(u => `<option>${escapeHtml(u.name)}</option>`).join('');
+  });
+}
+function renderWorkLogs(logs){
+  document.getElementById('wlList').innerHTML = logs.length
+    ? logs.map(l => `<div class="worklog-item"><div class="meta">${l.dateTime} • ${escapeHtml(l.staff)}</div><div>${escapeHtml(l.action)}${l.parts?' | อุปกรณ์: '+escapeHtml(l.parts):''}${l.cost?' | ฿'+l.cost:''}</div>${l.note?`<div class="meta">${escapeHtml(l.note)}</div>`:''}</div>`).join('')
+    : '<div class="empty-state">ยังไม่มี Work Log</div>';
+}
+function switchPane(name){
+  document.querySelectorAll('.section-tab button').forEach(b => b.classList.toggle('active', b.dataset.pane===name));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-'+name));
+}
+document.querySelectorAll('.section-tab button').forEach(b => b.addEventListener('click', () => switchPane(b.dataset.pane)));
+document.getElementById('modalCloseBtn').addEventListener('click', () => document.getElementById('ticketModal').classList.remove('show'));
+document.getElementById('ticketModal').addEventListener('click', e => { if (e.target.id==='ticketModal') e.target.classList.remove('show'); });
+
+document.getElementById('assignBtn').addEventListener('click', () => {
+  const assignedTo = document.getElementById('assignStaffSelect').value;
+  if (!assignedTo) return toast('warning','เลือกผู้รับผิดชอบก่อน');
+  apiPost('assignTicket', { ticketId: activeModalTicketId, assignedTo, staff: session ? session.name : assignedTo }).then(res => {
+    if (res.success) { toast('success','มอบหมายงานสำเร็จ'); openTicketModal(activeModalTicketId); loadStaffTickets(); }
+    else toast('error', res.error);
+  });
+});
+document.getElementById('statusBtn').addEventListener('click', () => {
+  const status = document.getElementById('statusSelect').value;
+  const note = document.getElementById('statusNote').value;
+  apiPost('updateStatus', { ticketId: activeModalTicketId, status, note, staff: session ? session.name : '' }).then(res => {
+    if (res.success) { toast('success','บันทึกสถานะสำเร็จ'); openTicketModal(activeModalTicketId); loadStaffTickets(); }
+    else toast('error', res.error);
+  });
+});
+document.getElementById('wlBtn').addEventListener('click', () => {
+  const staff = document.getElementById('wlStaff').value.trim();
+  const action = document.getElementById('wlAction').value.trim();
+  if (!staff || !action) return toast('warning','กรอกเจ้าหน้าที่และการดำเนินการก่อน');
+  apiPost('addWorkLog', {
+    ticketId: activeModalTicketId, staff, action,
+    parts: document.getElementById('wlParts').value,
+    cost: document.getElementById('wlCost').value,
+    note: document.getElementById('wlNote').value
+  }).then(res => {
+    if (res.success) {
+      toast('success','บันทึก Work Log สำเร็จ');
+      ['wlAction','wlParts','wlNote'].forEach(id => document.getElementById(id).value='');
+      document.getElementById('wlCost').value = '0';
+      openTicketModal(activeModalTicketId);
+    } else toast('error', res.error);
+  });
+});
+document.getElementById('closeBtn').addEventListener('click', () => {
+  const resolution = document.getElementById('clResolution').value.trim();
+  const rootCause = document.getElementById('clRootCause').value.trim();
+  if (!resolution || !rootCause) return toast('warning','กรอกวิธีแก้ไขและสาเหตุก่อนปิดงาน');
+  Swal.fire({ title:'ยืนยันปิดงาน?', icon:'question', showCancelButton:true, confirmButtonText:'ปิดงาน', cancelButtonText:'ยกเลิก' }).then(r => {
+    if (!r.isConfirmed) return;
+    apiPost('closeTicket', {
+      ticketId: activeModalTicketId, resolution, rootCause,
+      cost: document.getElementById('clCost').value,
+      note: document.getElementById('clNote').value,
+      staff: session ? session.name : ''
+    }).then(res => {
+      if (res.success) { toast('success','ปิดงานสำเร็จ'); document.getElementById('ticketModal').classList.remove('show'); loadStaffTickets(); }
+      else toast('error', res.error);
+    });
+  });
+});
+
+/* ==========================================================
+   6. REPORTS
+   ========================================================== */
+document.getElementById('repRange').addEventListener('change', function(){
+  const custom = this.value === 'custom';
+  document.getElementById('repFrom').style.display = custom ? 'inline-block' : 'none';
+  document.getElementById('repTo').style.display = custom ? 'inline-block' : 'none';
+});
+document.getElementById('repLoadBtn').addEventListener('click', loadReport);
+let lastReportData = null;
+function loadReport(){
+  const range = document.getElementById('repRange').value;
+  const params = { range };
+  if (range === 'custom') { params.dateFrom = document.getElementById('repFrom').value; params.dateTo = document.getElementById('repTo').value; }
+  apiGet('getReport', params).then(res => {
+    if (!res.success) return toast('error', res.error);
+    lastReportData = res.data;
+    const d = res.data;
+    document.getElementById('repCards').innerHTML = `
+      <div class="stat-card"><div class="num">${d.total}</div><div class="lbl">จำนวน Ticket</div></div>
+      <div class="stat-card"><div class="num">${d.avgResolutionHours}</div><div class="lbl">เวลาแก้ไขเฉลี่ย (ชม.)</div></div>
+      <div class="stat-card"><div class="num">${Object.keys(d.byStaff).length}</div><div class="lbl">เจ้าหน้าที่ที่เกี่ยวข้อง</div></div>
+    `;
+    drawDoughnut('repChartStatus', d.byStatus);
+    drawDoughnut('repChartType', d.byType);
+    drawBar('repChartStaff', d.byStaff);
+    document.getElementById('repTopProblems').innerHTML = d.topProblemsList.length
+      ? d.topProblemsList.map(p => `<div class="worklog-item"><b>${escapeHtml(p.title)}</b> — ${p.count} ครั้ง</div>`).join('')
+      : '<div class="empty-state">ยังไม่มีข้อมูล</div>';
+  });
+}
+document.getElementById('repExportBtn').addEventListener('click', () => {
+  if (!lastReportData || !lastReportData.tickets.length) return toast('warning','ยังไม่มีข้อมูลสำหรับ Export');
+  const rows = lastReportData.tickets;
+  const headers = Object.keys(rows[0]);
+  const csv = [headers.join(',')].concat(
+    rows.map(r => headers.map(h => '"' + String(r[h] == null ? '' : r[h]).replace(/"/g,'""') + '"').join(','))
+  ).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'it-helpdesk-report-' + lastReportData.range + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+});
+
+/* ==========================================================
+   7. SETTINGS / LOGIN
+   ========================================================== */
+function renderLoginState(){
+  const stateBox = document.getElementById('loginState');
+  const formBox = document.getElementById('loginForm');
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (session) {
+    stateBox.innerHTML = `<div style="font-weight:600">${escapeHtml(session.name)}</div><div class="chip" style="margin-top:6px;">${session.role}</div>`;
+    formBox.style.display = 'none';
+    logoutBtn.style.display = 'block';
+  } else {
+    stateBox.innerHTML = `<div style="color:#888;font-size:13px">ยังไม่ได้เข้าสู่ระบบ (โหมด Guest)</div>`;
+    formBox.style.display = 'block';
+    logoutBtn.style.display = 'none';
+  }
+}
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const identifier = document.getElementById('loginIdentifier').value.trim();
+  if (!identifier) return toast('warning','กรอกข้อมูลก่อนเข้าสู่ระบบ');
+  apiPost('login', { identifier }).then(res => {
+    if (!res.success) return toast('error', res.error);
+    session = { name: res.name, role: res.role, department: res.department };
+    localStorage.setItem('ithd_session', JSON.stringify(session));
+    toast('success', 'เข้าสู่ระบบสำเร็จ');
+    renderLoginState();
+  });
+});
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  session = null; localStorage.removeItem('ithd_session'); renderLoginState();
+});
+
+/* ---------- INIT ---------- */
+router();
+if (API_URL.indexOf('YOUR_DEPLOYMENT_ID') !== -1) {
+  Swal.fire({ icon:'warning', title:'ยังไม่ได้ตั้งค่า API_URL', text:'แก้ตัวแปร API_URL ในไฟล์ index.html ก่อนใช้งานจริง' });
+}
+</script>
 </body>
 </html>
