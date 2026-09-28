@@ -203,7 +203,6 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
     <div class="stat-grid" id="dashCards"></div>
     <div class="chart-grid">
       <div class="chart-card"><h3>ปัญหาแยกตามประเภท</h3><canvas id="chartType"></canvas></div>
-      <div class="chart-card"><h3>ปัญหาแยกตามอาคาร</h3><canvas id="chartBuilding"></canvas></div>
       <div class="chart-card"><h3>เจ้าหน้าที่ที่รับงานมากที่สุด</h3><canvas id="chartStaff"></canvas></div>
       <div class="chart-card">
         <h3>ปัญหาที่เกิดซ้ำบ่อย (Top 5)</h3>
@@ -219,17 +218,13 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
       <div class="form-grid">
         <div><label>ชื่อ-นามสกุล *</label><input type="text" id="rName" required></div>
         <div><label>ฝ่าย / แผนก *</label><input type="text" id="rDept" required></div>
-        <div><label>เบอร์โทรศัพท์ *</label><input type="tel" id="rPhone" required></div>
-        <div><label>อาคาร *</label><input type="text" id="rBuilding" required></div>
-        <div><label>ชั้น</label><input type="text" id="rFloor"></div>
-        <div><label>เลขครุภัณฑ์ (ถ้ามี)</label><input type="text" id="rAsset"></div>
         <div class="full"><label>ประเภทปัญหา *</label>
           <select id="rType" required>
             <option value="">-- เลือกประเภท --</option>
             <option>Computer</option><option>Notebook</option><option>Printer</option>
-            <option>Network / Internet</option><option>Wi-Fi</option><option>Projector</option>
+            <option>Network / Internet</option><option>Wi-Fi</option>
             <option>Software</option><option>Hardware</option><option>Email</option>
-            <option>Google Workspace</option><option>Account</option><option>อื่น ๆ</option>
+            <option>Account</option><option>อื่น ๆ</option>
           </select>
         </div>
         <div class="full"><label>หัวข้อปัญหา *</label><input type="text" id="rTitle" required placeholder="สรุปปัญหาสั้นๆ"></div>
@@ -253,7 +248,7 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
   <section class="view" id="view-mytickets">
     <h2 class="view-title"><i class="fa-solid fa-ticket"></i> Ticket ของฉัน</h2>
     <div class="toolbar">
-      <input type="text" id="myTicketsQuery" placeholder="กรอกชื่อ หรือ เบอร์โทรที่ใช้แจ้ง">
+      <input type="text" id="myTicketsQuery" placeholder="กรอกชื่อที่ใช้แจ้ง">
       <button class="btn small" id="myTicketsSearchBtn"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
     </div>
     <div class="table-wrap"><table>
@@ -279,7 +274,6 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
       <select id="fStatus"><option value="">สถานะทั้งหมด</option></select>
       <select id="fType"><option value="">ประเภททั้งหมด</option></select>
       <select id="fPriority"><option value="">ความเร่งด่วนทั้งหมด</option></select>
-      <input type="text" id="fBuilding" placeholder="อาคาร">
       <input type="date" id="fDateFrom">
       <input type="date" id="fDateTo">
       <input type="text" id="fSearch" placeholder="ค้นหา...">
@@ -289,7 +283,7 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
       <span class="chip" id="fCount"></span>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Ticket ID</th><th>วันที่แจ้ง</th><th>ผู้แจ้ง</th><th>อาคาร</th><th>ประเภท</th><th>ความเร่งด่วน</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th></tr></thead>
+      <thead><tr><th>Ticket ID</th><th>วันที่แจ้ง</th><th>ผู้แจ้ง</th><th>ประเภท</th><th>ความเร่งด่วน</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th></tr></thead>
       <tbody id="staffBody"></tbody>
     </table></div>
     <div class="pagination" id="staffPagination"></div>
@@ -345,9 +339,6 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
     <div class="sub" id="mSub"></div>
     <div class="field-row">
       <span><b>แผนก:</b> <span id="mDept"></span></span>
-      <span><b>โทร:</b> <span id="mPhone"></span></span>
-      <span><b>อาคาร/ชั้น:</b> <span id="mLoc"></span></span>
-      <span><b>ครุภัณฑ์:</b> <span id="mAsset"></span></span>
     </div>
     <div class="field-row"><span><b>รายละเอียด:</b></span></div>
     <div style="font-size:13px;background:#f8f9fc;padding:10px;border-radius:8px;margin-bottom:8px" id="mDetail"></div>
@@ -398,10 +389,10 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
 /* ==========================================================
    แก้ตรงนี้: ใส่ URL ของ Apps Script Web App (ลงท้ายด้วย /exec)
    ========================================================== */
-const API_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzmfiTmo2rjcDlHuLk1eed1rvHxcdj_3WiCYqpNExV7fIdwFqGQjT5uzPKrG_GgKWj5/exec';
 
 const STATUSES = ['รอรับเรื่อง','รับเรื่องแล้ว','กำลังดำเนินการ','รออะไหล่ / รอข้อมูล','แก้ไขแล้ว','ปิดงาน','ยกเลิก'];
-const PROBLEM_TYPES = ['Computer','Notebook','Printer','Network / Internet','Wi-Fi','Projector','Software','Hardware','Email','Google Workspace','Account','อื่น ๆ'];
+const PROBLEM_TYPES = ['Computer','Notebook','Printer','Network / Internet','Wi-Fi','Software','Hardware','Email','Account','อื่น ๆ'];
 const PRIORITIES = ['ปกติ','ปานกลาง','เร่งด่วน','ด่วนมาก'];
 
 let session = JSON.parse(localStorage.getItem('ithd_session') || 'null');
@@ -474,7 +465,6 @@ function loadDashboard(){
       <div class="stat-card"><i class="fa-solid fa-clock"></i><div class="num">${s.avgResolutionHours} ชม.</div><div class="lbl">เวลาแก้ไขเฉลี่ย</div></div>
     `;
     drawDoughnut('chartType', s.byType);
-    drawBar('chartBuilding', s.byBuilding);
     drawBar('chartStaff', s.byStaff);
     document.getElementById('topProblemsList').innerHTML = s.topProblemsList.length
       ? s.topProblemsList.map(p => `<div class="worklog-item"><b>${escapeHtml(p.title)}</b> — ${p.count} ครั้ง</div>`).join('')
@@ -517,10 +507,6 @@ document.getElementById('reportForm').addEventListener('submit', async function(
   const data = {
     reporterName: document.getElementById('rName').value.trim(),
     department: document.getElementById('rDept').value.trim(),
-    phone: document.getElementById('rPhone').value.trim(),
-    building: document.getElementById('rBuilding').value.trim(),
-    floor: document.getElementById('rFloor').value.trim(),
-    assetId: document.getElementById('rAsset').value.trim(),
     problemType: document.getElementById('rType').value,
     problemTitle: document.getElementById('rTitle').value.trim(),
     problemDetail: document.getElementById('rDetail').value.trim(),
@@ -555,7 +541,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
 document.getElementById('myTicketsSearchBtn').addEventListener('click', () => {
   const q = document.getElementById('myTicketsQuery').value.trim();
   const tbody = document.getElementById('myTicketsBody');
-  if (!q) return toast('warning','กรอกชื่อหรือเบอร์โทรก่อน');
+  if (!q) return toast('warning','กรอกชื่อก่อน');
   tbody.innerHTML = '<tr><td colspan="5" class="empty-state">กำลังค้นหา...</td></tr>';
   apiGet('getTickets', { search: q, pageSize: 100 }).then(res => {
     if (!res.success) { tbody.innerHTML = ''; return toast('error', res.error); }
@@ -637,7 +623,7 @@ function loadStaffFilters(){
 }
 document.getElementById('fApplyBtn').addEventListener('click', () => { staffPage = 1; loadStaffTickets(); });
 document.getElementById('fResetBtn').addEventListener('click', () => {
-  ['fStatus','fType','fPriority','fBuilding','fDateFrom','fDateTo','fSearch'].forEach(id => document.getElementById(id).value='');
+  ['fStatus','fType','fPriority','fDateFrom','fDateTo','fSearch'].forEach(id => document.getElementById(id).value='');
   staffPage = 1; loadStaffTickets();
 });
 function loadStaffTickets(){
@@ -645,7 +631,6 @@ function loadStaffTickets(){
     status: document.getElementById('fStatus').value,
     problemType: document.getElementById('fType').value,
     priority: document.getElementById('fPriority').value,
-    building: document.getElementById('fBuilding').value,
     dateFrom: document.getElementById('fDateFrom').value,
     dateTo: document.getElementById('fDateTo').value,
     search: document.getElementById('fSearch').value,
@@ -662,7 +647,7 @@ function loadStaffTickets(){
     tbody.innerHTML = items.map(t => `
       <tr onclick="openTicketModal('${t.ticketId}')">
         <td>${t.ticketId}</td><td>${t.createdAt}</td><td>${escapeHtml(t.reporterName)}</td>
-        <td>${escapeHtml(t.building)}</td><td>${escapeHtml(t.problemType)}</td>
+        <td>${escapeHtml(t.problemType)}</td>
         <td class="pr-${t.priority}">${t.priority}</td>
         <td><span class="badge st-${t.status}">${t.status}</span></td>
         <td>${t.assignedTo || '-'}</td>
@@ -690,9 +675,6 @@ function openTicketModal(ticketId){
     document.getElementById('mTitle').textContent = t.ticketId + ' — ' + t.problemTitle;
     document.getElementById('mSub').innerHTML = `ผู้แจ้ง: ${escapeHtml(t.reporterName)} • แจ้งเมื่อ ${t.createdAt} • <span class="badge st-${t.status}">${t.status}</span>`;
     document.getElementById('mDept').textContent = t.department;
-    document.getElementById('mPhone').textContent = t.phone;
-    document.getElementById('mLoc').textContent = t.building + (t.floor ? ' ชั้น '+t.floor : '');
-    document.getElementById('mAsset').textContent = t.assetId || '-';
     document.getElementById('mDetail').textContent = t.problemDetail;
     document.getElementById('mAttachWrap').innerHTML = t.attachmentUrl
       ? `<a href="${t.attachmentUrl}" target="_blank" class="chip"><i class="fa-solid fa-paperclip"></i> เปิดไฟล์แนบ</a>` : '';
