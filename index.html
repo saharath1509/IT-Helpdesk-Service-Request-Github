@@ -389,7 +389,7 @@ tbody tr:hover{background:#f5f7fd;cursor:pointer;}
 /* ==========================================================
    แก้ตรงนี้: ใส่ URL ของ Apps Script Web App (ลงท้ายด้วย /exec)
    ========================================================== */
-const API_URL = 'https://script.google.com/macros/s/AKfycbzmfiTmo2rjcDlHuLk1eed1rvHxcdj_3WiCYqpNExV7fIdwFqGQjT5uzPKrG_GgKWj5/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwNkwevu9A_p1Cmk-CRx3RzJvxXnNJ55ZbVybrMOfNkNyvnGSQxUsQmNcHvECvxtlj9/exec';
 
 const STATUSES = ['รอรับเรื่อง','รับเรื่องแล้ว','กำลังดำเนินการ','รออะไหล่ / รอข้อมูล','แก้ไขแล้ว','ปิดงาน','ยกเลิก'];
 const PROBLEM_TYPES = ['Computer','Notebook','Printer','Network / Internet','Wi-Fi','Software','Hardware','Email','Account','อื่น ๆ'];
@@ -686,10 +686,12 @@ function openTicketModal(ticketId){
     switchPane('assign');
     document.getElementById('ticketModal').classList.add('show');
   });
-  apiGet('getUsers', { role: 'IT Staff' }).then(res => {
+  apiGet('getUsers', { role: 'staff' }).then(res => {
     const sel = document.getElementById('assignStaffSelect');
     const staff = res.success ? res.data : [];
-    sel.innerHTML = '<option value="">-- เลือกผู้รับผิดชอบ --</option>' + staff.map(u => `<option>${escapeHtml(u.name)}</option>`).join('');
+    sel.innerHTML = staff.length
+      ? '<option value="">-- เลือกผู้รับผิดชอบ --</option>' + staff.map(u => `<option>${escapeHtml(u.name)}</option>`).join('')
+      : '<option value="">-- ยังไม่มีรายชื่อเจ้าหน้าที่ (เพิ่มในชีต Users) --</option>';
   });
 }
 function renderWorkLogs(logs){
